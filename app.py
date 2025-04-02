@@ -17,7 +17,7 @@ def chat():
     }
 
     data = {
-        "model": "mistralai/mistral-7b-instruct",  # ✅ FREE model (no need to deploy)
+        "model": "meta-llama/Llama-3-8B-Instruct",  # ✅ FREE model (no need to deploy)
         "messages": [{"role": "user", "content": user_message}]
     }
 
