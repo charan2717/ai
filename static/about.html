@@ -83,15 +83,16 @@
         <p>When a user sends a message, our backend:</p>
         <ol>
             <li>Receives the message via a Flask API endpoint.</li>
-            <li>Sends the message to an AI model (e.g., OpenAI’s GPT-4 API).</li>
+            <li>Sends the message to an AI model (e.g., meta-llama).</li>
             <li>Processes the response and sends it back to the frontend.</li>
+            <li>Once you refresh the page the chat history will be gone.</li>
         </ol>
 
         <h3>🚀 Example API Call:</h3>
         <pre>
 <code>import requests
 
-API_KEY = "5a812dabc044d8d9f0b7805aab68eb90929c766983f930682c22f164563bb656"
+API_KEY = "YOUR_API_KEY"
 API_URL = "https://api.together.xyz/v1/chat/completions"
 HEADERS = {
     "Authorization": "Bearer YOUR_API_KEY",
