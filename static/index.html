@@ -1,65 +1,177 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Assistant</title>
+    <title>Smart Chatbot</title>
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        
-        #chatbox {
-            width: 60%;
-            margin: auto;
-            border: 1px solid #ccc;
-            padding: 10px;
-            height: 300px;
-            overflow-y: auto;
+
+        /* Chat Container */
+        .chat-container {
+            width: 400px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
         }
-        
-        input,
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            width: 60%;
+
+        /* Header */
+        .chat-header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        
-        button {
+
+        #theme-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
             cursor: pointer;
+        }
+
+        /* Chatbox */
+        .chatbox {
+            height: 400px;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Messages */
+        .message {
+            max-width: 75%;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+        }
+
+        .user-message {
+            background: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .bot-message {
+            background: #e3e3e3;
+            color: black;
+            align-self: flex-start;
+        }
+
+        /* Input Box */
+        .chat-input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        #send-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
         }
     </style>
 </head>
-
 <body>
-    <h1>AI Assistant</h1>
-    <div id="chatbox"></div>
-    <input type="text" id="userInput" placeholder="Type a message...">
-    <button onclick="sendMessage()">Send</button>
+
+    <div class="chat-container">
+        <div class="chat-header">
+            <h2>AI Chatbot</h2>
+            <button id="theme-toggle">🌙</button>
+        </div>
+        <div id="chatbox" class="chatbox"></div>
+        <div class="chat-input-container">
+            <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+            <button id="send-btn">➤</button>
+        </div>
+    </div>
 
     <script>
-        function sendMessage() {
-            let userInput = document.getElementById("userInput").value;
-            document.getElementById("chatbox").innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+        document.addEventListener("DOMContentLoaded", function () {
+            const chatbox = document.getElementById("chatbox");
+            const userInput = document.getElementById("user-input");
+            const sendBtn = document.getElementById("send-btn");
+            const themeToggle = document.getElementById("theme-toggle");
 
-            fetch("/chat", { // No need for full URL since frontend and backend are on the same server
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: userInput
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    document.getElementById("chatbox").innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
-                    document.getElementById("userInput").value = ""; // Clear input
-                });
-        }
+            function addMessage(content, isUser) {
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
+                messageDiv.textContent = content;
+                chatbox.appendChild(messageDiv);
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }
+
+            async function sendMessage() {
+                const userMessage = userInput.value.trim();
+                if (userMessage === "") return;
+
+                addMessage(userMessage, true);
+                userInput.value = "";
+
+                // Show loading message
+                const loadingMessage = document.createElement("div");
+                loadingMessage.classList.add("message", "bot-message");
+                loadingMessage.textContent = "Thinking...";
+                chatbox.appendChild(loadingMessage);
+                chatbox.scrollTop = chatbox.scrollHeight;
+
+                // Send request to Flask API
+                try {
+                    const response = await fetch("/chat", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: userMessage })
+                    });
+                    const data = await response.json();
+
+                    chatbox.removeChild(loadingMessage);  // Remove loading
+                    addMessage(data.response, false);
+                } catch (error) {
+                    chatbox.removeChild(loadingMessage);
+                    addMessage("Error: Unable to connect to AI.", false);
+                }
+            }
+
+            // Send message on button click or Enter key
+            sendBtn.addEventListener("click", sendMessage);
+            userInput.addEventListener("keypress", function (event) {
+                if (event.key === "Enter") sendMessage();
+            });
+
+            // Dark Mode Toggle
+            themeToggle.addEventListener("click", function () {
+                document.body.classList.toggle("dark-mode");
+                themeToggle.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
+            });
+        });
     </script>
-</body>
 
+</body>
 </html>
