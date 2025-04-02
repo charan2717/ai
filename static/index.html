@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        
+        #chatbox {
+            width: 60%;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        
+        input,
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            width: 60%;
+        }
+        
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AI Assistant</h1>
+    <div id="chatbox"></div>
+    <input type="text" id="userInput" placeholder="Type a message...">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        function sendMessage() {
+            let userInput = document.getElementById("userInput").value;
+            document.getElementById("chatbox").innerHTML += `<p><b>You:</b> ${userInput}</p>`;
+
+            fetch("/chat", { // No need for full URL since frontend and backend are on the same server
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: userInput
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("chatbox").innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
+                    document.getElementById("userInput").value = ""; // Clear input
+                });
+        }
+    </script>
+</body>
+
+</html>
