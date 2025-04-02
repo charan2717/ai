@@ -1,17 +1,39 @@
+import requests
 from flask import Flask, request, jsonify, send_from_directory
-import os
-from flask_cors import CORS
 
 app = Flask(__name__, static_folder="static", static_url_path="/")
 
-# API Route (Chatbot)
+# Replace with your Together AI API Key
+API_KEY = "5a812dabc044d8d9f0b7805aab68eb90929c766983f930682c22f164563bb656"
+API_URL = "https://api.together.xyz/v1/chat/completions"
+
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
-    response = f"You said: {user_message}"
-    return jsonify({"response": response})
 
-# Serve Frontend Files (index.html)
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "model": "mistralai/mistral-7b-instruct",  # ✅ FREE model (no need to deploy)
+        "messages": [{"role": "user", "content": user_message}]
+    }
+
+    try:
+        response = requests.post(API_URL, json=data, headers=headers)
+        print("Full API Response:", response.json())  # Debugging
+
+        if response.status_code == 200:
+            bot_reply = response.json().get("choices", [{}])[0].get("message", {}).get("content", "No response")
+        else:
+            bot_reply = f"Error: {response.json()}"
+
+    except Exception as e:
+        bot_reply = f"Error: {str(e)}"
+
+    return jsonify({"response": bot_reply})
 @app.route("/")
 def serve_frontend():
     return send_from_directory(app.static_folder, "index.html")
