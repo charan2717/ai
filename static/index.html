@@ -1,72 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Base-AI</title>
+    <title>
+        <Base-AI></Base-AI>
+    </title>
     <style>
         /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+        
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
         }
-
-        /* Chat Container */
-        .chat-container {
-            width: 450px;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        /* Header */
-        .chat-header {
-            background: #007bff;
-            color: white;
-            padding: 15px;
+        
+        body {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            transition: background 0.3s, color 0.3s;
         }
-
-        /* Chatbox */
-        .chatbox {
-            height: 450px;
-            padding: 15px;
-            overflow-y: auto;
-            background: #f9f9f9;
+        /* Sidebar */
+        
+        .sidebar {
+            width: 250px;
+            background: #000000;
+            color: white;
             display: flex;
             flex-direction: column;
+            padding: 20px;
         }
-
+        
+        .sidebar h2 {
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .sidebar button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+        }
+        
+        .sidebar button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        /* Main Chat Area */
+        
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f9f9f9;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .header {
+            background: #000000;
+            color: white;
+            padding: 15px;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .chatbox {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background: #f9f9f9;
+        }
         /* Messages */
+        
         .message {
-            max-width: 85%;
-            padding: 10px;
-            margin: 5px;
+            max-width: 75%;
+            padding: 12px;
+            margin: 8px;
             border-radius: 10px;
             word-wrap: break-word;
         }
-
+        
         .user-message {
             background: #007bff;
             color: white;
             align-self: flex-end;
         }
-
+        
         .bot-message {
             background: #e3e3e3;
             color: black;
             align-self: flex-start;
         }
-
         /* Code Block Styling */
+        
         pre {
             background: #272822;
             color: #f8f8f2;
@@ -74,43 +111,107 @@
             border-radius: 5px;
             overflow-x: auto;
         }
-
+        
         code {
             font-family: "Courier New", monospace;
         }
-
         /* Input Box */
+        
         .chat-input-container {
             display: flex;
             padding: 10px;
             border-top: 1px solid #ddd;
+            background: white;
         }
-
+        
         #user-input {
             flex: 1;
-            padding: 10px;
-            border: none;
+            padding: 12px;
+            border: 1px solid #ccc;
             border-radius: 5px;
             outline: none;
         }
-
+        
         #send-btn {
             background: #007bff;
             color: white;
             border: none;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
             cursor: pointer;
             margin-left: 5px;
         }
+        /* Dark Mode */
+        
+        .dark-mode {
+            background: #121212;
+            color: white;
+        }
+        
+        .dark-mode .main {
+            background: #181818;
+        }
+        
+        .dark-mode .chatbox {
+            background: #181818;
+        }
+        
+        .dark-mode .user-message {
+            background: #0d6efd;
+        }
+        
+        .dark-mode .bot-message {
+            background: #333;
+            color: white;
+        }
+        
+        .dark-mode .chat-input-container {
+            background: #222;
+        }
+        
+        .dark-mode #user-input {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+        }
+        /* Toggle Button */
+        
+        .toggle-container {
+            margin-top: auto;
+        }
+        
+        .toggle-container button {
+            width: 100%;
+            background: white;
+            color: black;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .dark-mode .toggle-container button {
+            background: black;
+            color: white;
+        }
     </style>
 </head>
+
 <body>
 
-    <div class="chat-container">
-        <div class="chat-header">
-            <h2>Base-AI</h2>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>Base-AI</h2>
+        <button onclick="newChat()">New Chat</button>
+        <button onclick="window.location.href='about.html'">About Us</button>
+        <div class="toggle-container">
+            <button onclick="toggleDarkMode()">🌙 Dark Mode</button>
         </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="main">
+        <div class="header">Chat with Base</div>
         <div id="chatbox" class="chatbox"></div>
         <div class="chat-input-container">
             <input type="text" id="user-input" placeholder="Ask me anything..." autocomplete="off">
@@ -119,7 +220,7 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function() {
             const chatbox = document.getElementById("chatbox");
             const userInput = document.getElementById("user-input");
             const sendBtn = document.getElementById("send-btn");
@@ -128,9 +229,8 @@
                 const messageDiv = document.createElement("div");
                 messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
 
-                // Check if the content contains code
                 if (content.includes("```")) {
-                    const codeText = content.replace(/```(\w+)?/g, "").trim();  // Remove triple backticks
+                    const codeText = content.replace(/```(\w+)?/g, "").trim();
                     messageDiv.innerHTML = `<pre><code>${codeText}</code></pre>`;
                 } else {
                     messageDiv.textContent = content;
@@ -147,23 +247,25 @@
                 addMessage(userMessage, true);
                 userInput.value = "";
 
-                // Show loading message
                 const loadingMessage = document.createElement("div");
                 loadingMessage.classList.add("message", "bot-message");
                 loadingMessage.textContent = "Thinking...";
                 chatbox.appendChild(loadingMessage);
                 chatbox.scrollTop = chatbox.scrollHeight;
 
-                // Send request to Flask API
                 try {
                     const response = await fetch("/chat", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: userMessage })
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            message: userMessage
+                        })
                     });
                     const data = await response.json();
 
-                    chatbox.removeChild(loadingMessage);  // Remove loading
+                    chatbox.removeChild(loadingMessage);
                     addMessage(data.response, false);
                 } catch (error) {
                     chatbox.removeChild(loadingMessage);
@@ -171,13 +273,21 @@
                 }
             }
 
-            // Send message on button click or Enter key
             sendBtn.addEventListener("click", sendMessage);
-            userInput.addEventListener("keypress", function (event) {
+            userInput.addEventListener("keypress", function(event) {
                 if (event.key === "Enter") sendMessage();
             });
         });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+        }
+
+        function newChat() {
+            document.getElementById("chatbox").innerHTML = "";
+        }
     </script>
 
 </body>
+
 </html>
