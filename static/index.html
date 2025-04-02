@@ -18,7 +18,7 @@
 
         /* Chat Container */
         .chat-container {
-            width: 400px;
+            width: 450px;
             background: white;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
@@ -35,18 +35,10 @@
             align-items: center;
         }
 
-        #theme-toggle {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-        }
-
         /* Chatbox */
         .chatbox {
-            height: 400px;
-            padding: 10px;
+            height: 450px;
+            padding: 15px;
             overflow-y: auto;
             background: #f9f9f9;
             display: flex;
@@ -55,10 +47,11 @@
 
         /* Messages */
         .message {
-            max-width: 75%;
+            max-width: 85%;
             padding: 10px;
             margin: 5px;
             border-radius: 10px;
+            word-wrap: break-word;
         }
 
         .user-message {
@@ -71,6 +64,19 @@
             background: #e3e3e3;
             color: black;
             align-self: flex-start;
+        }
+
+        /* Code Block Styling */
+        pre {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: "Courier New", monospace;
         }
 
         /* Input Box */
@@ -104,11 +110,10 @@
     <div class="chat-container">
         <div class="chat-header">
             <h2>Base-AI</h2>
-            <button id="theme-toggle">🌙</button>
         </div>
         <div id="chatbox" class="chatbox"></div>
         <div class="chat-input-container">
-            <input type="text" id="user-input" placeholder="Type a message..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Ask me anything..." autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
     </div>
@@ -118,12 +123,19 @@
             const chatbox = document.getElementById("chatbox");
             const userInput = document.getElementById("user-input");
             const sendBtn = document.getElementById("send-btn");
-            const themeToggle = document.getElementById("theme-toggle");
 
             function addMessage(content, isUser) {
                 const messageDiv = document.createElement("div");
                 messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
-                messageDiv.textContent = content;
+
+                // Check if the content contains code
+                if (content.includes("```")) {
+                    const codeText = content.replace(/```(\w+)?/g, "").trim();  // Remove triple backticks
+                    messageDiv.innerHTML = `<pre><code>${codeText}</code></pre>`;
+                } else {
+                    messageDiv.textContent = content;
+                }
+
                 chatbox.appendChild(messageDiv);
                 chatbox.scrollTop = chatbox.scrollHeight;
             }
@@ -163,12 +175,6 @@
             sendBtn.addEventListener("click", sendMessage);
             userInput.addEventListener("keypress", function (event) {
                 if (event.key === "Enter") sendMessage();
-            });
-
-            // Dark Mode Toggle
-            themeToggle.addEventListener("click", function () {
-                document.body.classList.toggle("dark-mode");
-                themeToggle.textContent = document.body.classList.contains("dark-mode") ? "☀️" : "🌙";
             });
         });
     </script>
