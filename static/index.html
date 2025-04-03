@@ -32,6 +32,7 @@
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             --transition-speed: 0.2s;
+            --input-height: 70px;
         }
         
         .dark-mode {
@@ -66,13 +67,16 @@
             font-family: 'Söhne', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         }
         
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+        
         body {
             display: flex;
-            height: 100vh;
             background-color: var(--bg-primary);
             color: var(--text-primary);
             transition: background-color var(--transition-speed), color var(--transition-speed);
-            overflow: hidden;
             position: relative;
         }
         /* Sidebar */
@@ -86,7 +90,7 @@
             padding: 0.75rem;
             transition: transform var(--transition-speed);
             z-index: 100;
-            height: 100vh;
+            height: 100%;
             overflow-y: auto;
         }
         
@@ -144,6 +148,8 @@
             transition: background-color var(--transition-speed);
             position: relative;
             width: calc(100% - 260px);
+            height: 100%;
+            overflow: hidden;
         }
         
         .header {
@@ -157,6 +163,7 @@
             justify-content: center;
             position: relative;
             border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            height: 56px;
         }
         /* Sidebar toggle button */
         
@@ -183,14 +190,22 @@
             background: rgba(255, 255, 255, 0.1);
         }
         
-        .chatbox {
+        .chatbox-container {
             flex: 1;
+            position: relative;
+            height: calc(100% - 56px - var(--input-height));
+            overflow: hidden;
+        }
+        
+        .chatbox {
+            height: 100%;
             padding: 1rem 0;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             background: var(--bg-primary);
             scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
         }
         /* Custom scrollbar */
         
@@ -256,6 +271,8 @@
             max-width: 768px;
             margin: 0 auto;
             width: 100%;
+            height: var(--input-height);
+            border-top: 1px solid var(--border-color);
         }
         
         #user-input {
@@ -329,8 +346,8 @@
         .dark-mode .toggle-container button::before {
             content: "☀️";
         }
-        /* Overlay for mobile sidebar */
         
+        /* Overlay for mobile sidebar */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -341,12 +358,13 @@
             background: rgba(0, 0, 0, 0.5);
             z-index: 90;
         }
-        /* Responsive Design */
         
+        /* Responsive Design */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
             }
+            
             .sidebar {
                 position: fixed;
                 left: 0;
@@ -356,34 +374,31 @@
                 width: 85%;
                 max-width: 300px;
             }
+            
             .sidebar.active {
                 transform: translateX(0);
             }
+            
             .main {
                 width: 100%;
+                height: 100%;
             }
+            
             .message {
                 padding: 1rem;
             }
+            
             .chat-input-container {
                 padding: 0.75rem 1rem 1rem;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--bg-primary);
                 border-top: 1px solid var(--border-color);
             }
-            .chatbox {
-                padding-bottom: 80px;
-                /* Space for fixed input container */
-            }
+            
             .sidebar-overlay.active {
                 display: block;
             }
         }
-        /* Animation for messages */
         
+        /* Animation for messages */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -418,9 +433,12 @@
     <!-- Main Chat Area -->
     <div class="main">
         <div class="header">
-            <button class="sidebar-toggle" aria-label="Toggle Sidebar">☰</button> Chat with Base
+            <button class="sidebar-toggle" aria-label="Toggle Sidebar">☰</button>
+            Chat with Base
         </div>
-        <div id="chatbox" class="chatbox"></div>
+        <div class="chatbox-container">
+            <div id="chatbox" class="chatbox"></div>
+        </div>
         <div class="chat-input-container">
             <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
             <button id="send-btn">➤</button>
@@ -436,6 +454,18 @@
             const chatbox = document.getElementById("chatbox");
             const sendBtn = document.getElementById("send-btn");
 
+            // Fix for iOS viewport height issues
+            function setViewportHeight() {
+                document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+            }
+            
+            // Set initial viewport height
+            setViewportHeight();
+            
+            // Update on resize and orientation change
+            window.addEventListener('resize', setViewportHeight);
+            window.addEventListener('orientationchange', setViewportHeight);
+
             // Add sidebar toggle functionality
             function toggleSidebar() {
                 sidebar.classList.toggle('active');
@@ -443,7 +473,7 @@
             }
 
             sidebarToggle.addEventListener('click', toggleSidebar);
-
+            
             // Close sidebar when clicking overlay
             sidebarOverlay.addEventListener('click', toggleSidebar);
 
@@ -457,8 +487,8 @@
                 const messageDiv = document.createElement("div");
                 messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
 
-                if (content.includes("\`\`\`")) {
-                    const parts = content.split(/\`\`\`(\w+)?/g);
+                if (content.includes("```")) {
+                    const parts = content.split(/```(\w+)?/g);
                     let html = '';
 
                     for (let i = 0; i < parts.length; i++) {
@@ -525,7 +555,7 @@
                     sendMessage();
                 }
             });
-
+            
             // Add a welcome message
             setTimeout(() => {
                 addMessage("Hello! I'm Base-AI. How can I help you today?", false);
@@ -548,5 +578,4 @@
         }
     </script>
 </body>
-
 </html>
