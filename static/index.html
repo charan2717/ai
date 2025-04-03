@@ -73,6 +73,7 @@
             color: var(--text-primary);
             transition: background-color var(--transition-speed), color var(--transition-speed);
             overflow: hidden;
+            position: relative;
         }
         /* Sidebar */
         
@@ -142,6 +143,7 @@
             background: var(--bg-primary);
             transition: background-color var(--transition-speed);
             position: relative;
+            width: calc(100% - 260px);
         }
         
         .header {
@@ -174,6 +176,7 @@
             width: 2rem;
             height: 2rem;
             border-radius: 0.25rem;
+            z-index: 10;
         }
         
         .sidebar-toggle:hover {
@@ -326,9 +329,24 @@
         .dark-mode .toggle-container button::before {
             content: "☀️";
         }
+        /* Overlay for mobile sidebar */
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+        }
         /* Responsive Design */
         
         @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
             .sidebar {
                 position: fixed;
                 left: 0;
@@ -341,24 +359,28 @@
             .sidebar.active {
                 transform: translateX(0);
             }
+            .main {
+                width: 100%;
+            }
             .message {
                 padding: 1rem;
             }
             .chat-input-container {
                 padding: 0.75rem 1rem 1rem;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: var(--bg-primary);
+                border-top: 1px solid var(--border-color);
             }
-        }
-        /* Sidebar toggle functionality */
-        
-        body.sidebar-active::after {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 50;
+            .chatbox {
+                padding-bottom: 80px;
+                /* Space for fixed input container */
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
         }
         /* Animation for messages */
         
@@ -380,6 +402,8 @@
 </head>
 
 <body class="dark-mode">
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay"></div>
 
     <!-- Sidebar -->
     <div class="sidebar">
@@ -393,7 +417,9 @@
 
     <!-- Main Chat Area -->
     <div class="main">
-        <div class="header">Chat with Base</div>
+        <div class="header">
+            <button class="sidebar-toggle" aria-label="Toggle Sidebar">☰</button> Chat with Base
+        </div>
         <div id="chatbox" class="chatbox"></div>
         <div class="chat-input-container">
             <textarea id="user-input" placeholder="Ask anything..." rows="1"></textarea>
@@ -403,38 +429,36 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Create sidebar toggle button
-            const headerElement = document.querySelector('.header');
-            const sidebarToggle = document.createElement('button');
-            sidebarToggle.className = 'sidebar-toggle';
-            sidebarToggle.innerHTML = '☰';
-            sidebarToggle.setAttribute('aria-label', 'Toggle Sidebar');
-            headerElement.prepend(sidebarToggle);
+            const sidebar = document.querySelector('.sidebar');
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const sidebarOverlay = document.querySelector('.sidebar-overlay');
+            const userInput = document.getElementById('user-input');
+            const chatbox = document.getElementById("chatbox");
+            const sendBtn = document.getElementById("send-btn");
 
             // Add sidebar toggle functionality
-            sidebarToggle.addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('active');
-                document.body.classList.toggle('sidebar-active');
+            function toggleSidebar() {
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+            }
 
+            sidebarToggle.addEventListener('click', toggleSidebar);
 
-            });
+            // Close sidebar when clicking overlay
+            sidebarOverlay.addEventListener('click', toggleSidebar);
 
             // Auto-resize functionality for textarea
-            const userInput = document.getElementById('user-input');
             userInput.addEventListener('input', function() {
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
             });
 
-            const chatbox = document.getElementById("chatbox");
-            const sendBtn = document.getElementById("send-btn");
-
             function addMessage(content, isUser) {
                 const messageDiv = document.createElement("div");
                 messageDiv.classList.add("message", isUser ? "user-message" : "bot-message");
 
-                if (content.includes("```")) {
-                    const parts = content.split(/```(\w+)?/g);
+                if (content.includes("\`\`\`")) {
+                    const parts = content.split(/\`\`\`(\w+)?/g);
                     let html = '';
 
                     for (let i = 0; i < parts.length; i++) {
@@ -501,6 +525,11 @@
                     sendMessage();
                 }
             });
+
+            // Add a welcome message
+            setTimeout(() => {
+                addMessage("Hello! I'm Base-AI. How can I help you today?", false);
+            }, 500);
         });
 
         function toggleDarkMode() {
@@ -512,14 +541,12 @@
 
         function newChat() {
             document.getElementById("chatbox").innerHTML = "";
+            // Add a welcome message for new chat
+            setTimeout(() => {
+                addMessage("Hello! I'm Base-AI. How can I help you today?", false);
+            }, 100);
         }
     </script>
-
-</body>
-
-</html> }
-</script>
-
 </body>
 
 </html>
